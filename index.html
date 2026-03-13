@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Story - 4th Anniversary Scrapbook</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Outfit:wght@300;400;500;600&family=Dancing+Script:wght@400;600;700&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #F5D5D0;
+      --color-cream: #FAF7F2;
+      --color-beige: #E8DDD2;
+      --color-accent: #E5989B;
+      --color-deep: #B5838D;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; overflow: hidden; background-color: var(--color-beige); margin: 0; }
+    .font-handwriting { font-family: 'Kalam', cursive; }
+    .font-script { font-family: 'Dancing Script', cursive; }
+    .font-caveat { font-family: 'Caveat', cursive; }
+
+    /* ===== LOADING SCREEN ===== */
+    #loading-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #fce4ec, #fff8f0, #fce4ec);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+    #loading-screen.hidden { opacity: 0; pointer-events: none; }
+    .loading-heart { font-size: 3rem; animation: heartbeat 1s ease-in-out infinite; }
+    @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+    .loading-dots span { animation: blink 1.4s infinite; display: inline-block; margin: 0 2px; font-size: 1.5rem; color: #E5989B; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+    /* ===== BOOK ===== */
+    .book-container { perspective: 2500px; }
+    .book {
+      width: 460px; height: 610px;
+      position: relative; transform-style: preserve-3d;
+      transition: transform 1s cubic-bezier(0.4,0,0.2,1);
+    }
+    .book.is-open { transform: translateX(50%); }
+
+    .page {
+      width: 100%; height: 100%;
+      position: absolute; top: 0; left: 0;
+      transform-origin: left; transform-style: preserve-3d;
+      transition: transform 0.9s cubic-bezier(0.4,0,0.2,1);
+      cursor: pointer;
+    }
+    .page-front, .page-back {
+      width: 100%; height: 100%;
+      position: absolute; top: 0; left: 0;
+      backface-visibility: hidden;
+      overflow: hidden;
+    }
+    .page-back { transform: rotateY(180deg); }
+    .flipped { transform: rotateY(-180deg); }
+
+    .inner-page {
+      background: var(--color-cream);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23faf7f2'/%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23e8ddd2' opacity='0.4'/%3E%3C/svg%3E");
+      padding: 28px; display: flex; flex-direction: column; height: 100%;
+      border-right: 1px solid #e0d8d0;
+    }
+
+    .cover-outer {
+      background: linear-gradient(160deg, #e8a4a4 0%, #d4828a 50%, #c07080 100%);
+      border-left: 18px solid #a85f6a;
+      border-radius: 4px 12px 12px 4px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px; text-align: center;
+      box-shadow: 12px 12px 50px rgba(0,0,0,0.15);
+      height: 100%; position: relative; overflow: hidden;
+    }
+    .cover-outer::before {
+      content: ''; position: absolute; inset: 12px;
+      border: 1.5px solid rgba(255,255,255,0.3); border-radius: 8px; pointer-events: none;
+    }
+
+    /* ===== POLAROIDS ===== */
+    .polaroid {
+      background: white; padding: 8px 8px 32px 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: inline-block; position: relative;
+    }
+    .polaroid:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.18); }
+    .polaroid img { display: block; width: 100%; object-fit: cover; }
+    .polaroid .caption {
+      position: absolute; bottom: 5px; left: 0; right: 0;
+      text-align: center; font-family: 'Kalam', cursive; font-size: 11px; color: #666;
+    }
+
+    /* Polaroid drop-in animation */
+    @keyframes polaroidDrop {
+      0% { transform: translateY(-80px) rotate(var(--rot)) scale(0.7); opacity: 0; }
+      60% { transform: translateY(6px) rotate(var(--rot)) scale(1.03); opacity: 1; }
+      80% { transform: translateY(-3px) rotate(var(--rot)) scale(0.99); }
+      100% { transform: translateY(0) rotate(var(--rot)) scale(1); opacity: 1; }
+    }
+    .polaroid-anim {
+      --rot: -2deg;
+      animation: polaroidDrop 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      opacity: 0;
+    }
+
+    /* ===== TAPE ===== */
+    .tape {
+      background: rgba(255,255,220,0.65);
+      border: 1px solid rgba(0,0,0,0.06);
+      backdrop-filter: blur(1px);
+      display: block; position: absolute;
+    }
+
+    /* ===== STICKY NOTES ===== */
+    .sticky {
+      background: #fff9c4; padding: 12px 14px;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.08);
+      font-family: 'Caveat', cursive; font-size: 14px; line-height: 1.6; color: #555;
+      position: relative;
+    }
+    .sticky::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: rgba(0,0,0,0.04);
+    }
+    .sticky.blue { background: #e3f2fd; }
+    .sticky.pink { background: #fce4ec; }
+    .sticky.green { background: #e8f5e9; }
+
+    /* ===== SECRET LOVE NOTES ===== */
+    .secret-trigger {
+      cursor: pointer; transition: transform 0.3s ease, filter 0.3s ease;
+      display: inline-block; position: absolute;
+      animation: wiggle 3s ease-in-out infinite;
+      z-index: 10;
+    }
+    .secret-trigger:hover { transform: scale(1.3) !important; filter: drop-shadow(0 0 8px #E5989B); }
+    @keyframes wiggle { 0%,100%{transform:rotate(-5deg) scale(1)} 50%{transform:rotate(5deg) scale(1.1)} }
+
+    /* Love Note Modal */
+    #love-modal {
+      position: fixed; inset: 0; z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(4px);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    #love-modal.show { opacity: 1; pointer-events: all; }
+    .love-note-card {
+      background: #fff8f0;
+      background-image: repeating-linear-gradient(transparent, transparent 27px, #f0e8e0 27px, #f0e8e0 28px);
+      padding: 32px; max-width: 320px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transform: rotate(-1deg) scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      border-radius: 2px; position: relative;
+    }
+    #love-modal.show .love-note-card { transform: rotate(-1deg) scale(1); }
+    .love-note-card::before {
+      content: ''; position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 12px; background: rgba(255,255,220,0.7);
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    /* ===== MUSIC PLAYER ===== */
+    #music-player {
+      position: fixed; bottom: 90px; right: 20px; z-index: 500;
+      background: white; border-radius: 20px; padding: 10px 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Caveat', cursive;
+      transition: all 0.3s ease;
+    }
+    .cassette-reel {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid #E5989B; display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .cassette-reel.spinning { animation: spin 2s linear infinite; }
+    @keyframes spin { 100%{transform:rotate(360deg)} }
+    .reel-inner { width: 6px; height: 6px; background: #E5989B; border-radius: 50%; }
+
+    /* ===== COUNTER ===== */
+    .counter-item { text-align: center; }
+    .counter-num {
+      font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: #E5989B;
+      line-height: 1;
+    }
+    .counter-label { font-family: 'Caveat', cursive; font-size: 0.8rem; color: #888; }
+
+    /* ===== MAP PAGE ===== */
+    .map-container {
+      background: #e8f4e8; border-radius: 8px;
+      position: relative; overflow: hidden;
+      background-image:
+        linear-gradient(rgba(120,160,120,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120,160,120,0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .map-pin {
+      position: absolute; cursor: pointer;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center;
+      transition: transform 0.3s ease;
+    }
+    .map-pin:hover { transform: translateX(-50%) scale(1.2); }
+    .pin-dot {
+      width: 14px; height: 14px; background: #E5989B; border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg); border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .pin-label { font-family: 'Caveat', cursive; font-size: 11px; color: #555; margin-top: 4px; white-space: nowrap; }
+
+    /* ===== PIN POPUP ===== */
+    #pin-popup {
+      position: fixed; z-index: 10000;
+      background: white; border-radius: 12px;
+      padding: 16px; max-width: 220px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      display: none;
+      animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn { 0%{transform:scale(0.5);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+    /* ===== WHY I LOVE YOU ===== */
+    .love-reason-card {
+      background: white; border-radius: 16px; padding: 24px;
+      box-shadow: 0 4px 30px rgba(229,152,155,0.2);
+      text-align: center; min-height: 80px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .reason-text {
+      font-family: 'Kalam', cursive; font-size: 1.05rem; color: #666;
+      transition: opacity 0.4s ease;
+    }
+
+    /* ===== CONFETTI ===== */
+    .confetti-piece {
+      position: fixed; pointer-events: none; z-index: 9998;
+      animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+      0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+      100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+    }
+
+    /* ===== FLOATING HEARTS ===== */
+    .floating-heart {
+      position: absolute; pointer-events: none;
+      animation: floatUp 7s ease-in-out infinite; opacity: 0;
+    }
+    @keyframes floatUp {
+      0%{transform:translateY(100vh) scale(0.5);opacity:0}
+      30%{opacity:0.7}
+      100%{transform:translateY(-150px) rotate(30deg) scale(1.3);opacity:0}
+    }
+
+    /* ===== DOODLE ELEMENTS ===== */
+    .doodle { position: absolute; transition: transform 0.4s ease; cursor: default; }
+    .doodle:hover { transform: scale(1.3) rotate(15deg) !important; }
+    @keyframes floatBob { 0%,100%{transform:translateY(0) rotate(var(--rot,0deg))} 50%{transform:translateY(-6px) rotate(var(--rot,0deg))} }
+    .bob { animation: floatBob 3s ease-in-out infinite; }
+
+    /* ===== FINAL PAGE ===== */
+    #final-message { opacity: 0; transform: translateY(20px); transition: all 1s ease 0.5s; }
+    #final-message.reveal { opacity: 1; transform: translateY(0); }
+
+    /* ===== NAV ===== */
+    #nav-controls { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); display: flex; gap: 48px; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; z-index: 200; }
+    #nav-controls.visible { opacity: 1; pointer-events: all; }
+    #page-indicator { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); font-family: 'Kalam', cursive; font-size: 12px; color: #B5838D; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; z-index: 200; }
+    #page-indicator.visible { opacity: 1; }
+    .nav-btn {
+      width: 52px; height: 52px; border-radius: 50%; background: white;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 20px; color: #E5989B;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover { background: #fce4ec; transform: scale(1.1); }
+    .nav-btn:active { transform: scale(0.95); }
+
+    /* Photo grid helpers */
+    .photo-stack { position: relative; }
+    .photo-collage-3 { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 8px; }
+    .photo-collage-3 .span2 { grid-column: 1/3; }
+    .photo-filmstrip { display: flex; gap: 4px; overflow: hidden; }
+    .film-frame { flex: 0 0 auto; background: #1a1a1a; padding: 3px 3px 16px 3px; }
+    .film-frame img { display: block; }
+    .film-frame .film-caption { color: #aaa; font-size: 8px; text-align: center; font-family: monospace; margin-top: 2px; }
+
+    /* Washi tape strip */
+    .washi { display: block; position: absolute; left: 0; right: 0; height: 20px; opacity: 0.6; }
+
+    /* Handwritten underline */
+    .hw-underline { border-bottom: 2px solid #E5989B; display: inline-block; padding-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== LOADING SCREEN ===== -->
+<div id="loading-screen">
+  <div id="loading-hearts-container" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+  <div style="position:relative;z-index:1;text-align:center;">
+    <div class="loading-heart">💗</div>
+    <p class="font-script" style="font-size:2rem;color:#E5989B;margin:12px 0 6px">Loading Our Memories</p>
+    <div class="loading-dots">
+      <span>♥</span><span>♥</span><span>♥</span>
+    </div>
+    <p class="font-caveat" style="color:#B5838D;margin-top:16px;font-size:1.1rem">4 years of beautiful moments...</p>
+  </div>
+</div>
+
+<!-- ===== LOVE NOTE MODAL ===== -->
+<div id="love-modal" onclick="closeLoveModal()">
+  <div class="love-note-card" onclick="event.stopPropagation()">
+    <div style="font-size:1.8rem;text-align:center;margin-bottom:12px">💌</div>
+    <p class="font-handwriting" id="love-note-text" style="font-size:1.1rem;line-height:1.7;color:#555;text-align:center;"></p>
+    <div style="text-align:right;margin-top:16px;">
+      <span class="font-script" style="color:#E5989B;font-size:1.2rem">— with all my love 🌸</span>
+    </div>
+    <button onclick="closeLoveModal()" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:#ccc;">✕</button>
+  </div>
+</div>
+
+<!-- ===== PIN POPUP ===== -->
+<div id="pin-popup">
+  <button onclick="closePinPopup()" style="position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;font-size:14px;color:#ccc;">✕</button>
+  <img id="pin-img" src="" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;">
+  <p class="font-handwriting" id="pin-title" style="font-weight:bold;color:#E5989B;font-size:1rem;margin:0 0 4px;"></p>
+  <p id="pin-desc" class="font-caveat" style="font-size:0.9rem;color:#777;margin:0;"></p>
+</div>
+
+<!-- ===== MUSIC PLAYER ===== -->
+<div id="music-player">
+  <div id="cassette-reel" class="cassette-reel"><div class="reel-inner"></div></div>
+  <div>
+    <div class="font-caveat" style="font-size:0.75rem;color:#B5838D;">Our Song</div>
+    <div class="font-handwriting" style="font-size:0.7rem;color:#aaa;" id="music-label">♪ Tap to play</div>
+  </div>
+  <button id="music-btn" onclick="toggleMusic()" style="background:#E5989B;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:white;font-size:13px;display:flex;align-items:center;justify-content:center;">▶</button>
+</div>
+
+<!-- ===== PARTICLES ===== -->
+<div id="particles-container" style="position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1;"></div>
+
+<!-- ===== BACKGROUND ===== -->
+<div style="position:fixed;inset:0;background:linear-gradient(135deg,#fce4ec,#fff8f0,#fce4ec);z-index:0;"></div>
+<div style="position:fixed;top:-100px;left:-100px;width:500px;height:500px;background:#F5D5D0;border-radius:50%;filter:blur(80px);opacity:0.3;z-index:0;pointer-events:none;"></div>
+<div style="position:fixed;bottom:-100px;right:-100px;width:500px;height:500px;background:#E8DDD2;border-radius:50%;filter:blur(80px);opacity:0.3;z-index:0;pointer-events:none;"></div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;">
+  <div class="book-container">
+    <div id="scrapbook" class="book">
+
+      <!-- ======================================= -->
+      <!-- PAGE 8: FINAL PAGE (last rendered = lowest z) -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:1;" id="page-8">
+        <div class="page-front inner-page" style="background:#faf7f2;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px;">
+            <div id="final-message">
+              <div style="font-size:3rem;margin-bottom:16px;">✨</div>
+              <h2 class="font-script" style="font-size:2.6rem;color:#B5838D;margin-bottom:12px;">End of Chapter 4</h2>
+              <p class="font-handwriting" style="font-size:1rem;line-height:1.8;color:#666;max-width:320px;margin:0 auto 20px;">
+                "These 4 years have been my favorite chapter. And I can't wait to write the rest with you."
+              </p>
+              <div style="width:50px;height:2px;background:#E5989B;margin:0 auto 20px;"></div>
+              
+              <!-- YEAR COUNTER -->
+              <div style="display:flex;gap:20px;justify-content:center;margin-bottom:20px;background:white;border-radius:16px;padding:14px 20px;box-shadow:0 4px 20px rgba(229,152,155,0.15);">
+                <div class="counter-item">
+                  <div class="counter-num" id="days-count">0</div>
+                  <div class="counter-label">days</div>
+                </div>
+                <div class="counter-item">
+                  <div class="counter-num" id="hours-count">0</div>
+                  <div class="counter-label">hours</div>
+                </div>
+                <div class="counter-item">
+                  <div class="counter-num" style="font-size:1.5rem;">∞</div>
+                  <div class="counter-label">memories</div>
+                </div>
+              </div>
+
+              <button onclick="resetBook()" style="padding:12px 28px;background:#E5989B;color:white;border:none;border-radius:30px;font-family:'Outfit',sans-serif;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(229,152,155,0.3);transition:all 0.2s;font-size:0.9rem;" onmouseover="this.style.background='#B5838D'" onmouseout="this.style.background='#E5989B'">
+                🔄 Replay Our Story
+              </button>
+            </div>
+          </div>
+          <!-- Doodles -->
+          <div class="doodle bob" style="top:15px;right:20px;font-size:1.5rem;--rot:10deg;">⭐</div>
+          <div class="doodle bob" style="bottom:50px;left:20px;font-size:1.2rem;--rot:-8deg;animation-delay:1s;">🌸</div>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;">Page 15</div>
+        </div>
+        <div class="page-back inner-page" style="background:#c07080;"></div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 7: WHY I LOVE YOU + FUTURE -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:2;" id="page-7">
+        <div class="page-front inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:4px;">Why I Love You</h2>
+          <p class="font-caveat" style="color:#aaa;font-size:0.85rem;margin-bottom:16px;">Click the button for a reminder 💗</p>
+          
+          <div class="love-reason-card" style="margin-bottom:16px;">
+            <p class="reason-text" id="love-reason-display">Because you make every ordinary moment feel magical. ✨</p>
+          </div>
+          
+          <button onclick="showLoveReason()" style="width:100%;padding:14px;background:linear-gradient(135deg,#F5D5D0,#E5989B);color:white;border:none;border-radius:14px;font-family:'Kalam',cursive;font-size:1rem;cursor:pointer;box-shadow:0 4px 15px rgba(229,152,155,0.3);transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            💗 Click if you need a reminder
+          </button>
+
+          <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;">
+            <div class="sticky pink" style="transform:rotate(-1deg);border-radius:4px;font-size:12px;">Because you always know what to say when I'm down 🌧️</div>
+            <div class="sticky blue" style="transform:rotate(1deg);border-radius:4px;font-size:12px;">Because you laugh at all my jokes, even the bad ones 😂</div>
+            <div class="sticky green" style="transform:rotate(0.5deg);grid-column:1/3;border-radius:4px;font-size:12px;">Because you choose me, every single day, and that means everything ❤️</div>
+          </div>
+          
+          <div style="text-align:left;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 13</div>
+        </div>
+        <div class="page-back inner-page" style="background-image:radial-gradient(#d1d1d1 1px, transparent 1px);background-size:20px 20px;">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:16px;">To Our Future</h2>
+          <div style="flex:1;border-radius:16px;background:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.7);padding:20px;display:flex;flex-direction:column;justify-content:center;text-align:center;position:relative;">
+            <div style="position:absolute;top:12px;left:12px;font-size:1.2rem;animation:floatBob 2s infinite;">⭐</div>
+            <div style="position:absolute;top:12px;right:12px;font-size:1.2rem;animation:floatBob 2.5s infinite;">⭐</div>
+            <p class="font-handwriting" style="font-size:1rem;line-height:1.8;color:#666;">
+              "I can't wait to see where the next 4, 40, and 400 years take us. As long as I'm with you, every page is a beautiful adventure."
+            </p>
+            <div style="margin-top:16px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+              <div style="background:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">🏠</div>
+              <div style="background:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">✈️</div>
+              <div style="background:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">👶</div>
+              <div style="background:white;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">🐾</div>
+            </div>
+          </div>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 14</div>
+        </div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 6: SECRET NOTES + THINGS I LOVE -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:3;" id="page-6">
+        <div class="page-front inner-page" style="position:relative;">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:16px;">Little Secrets 💌</h2>
+          <p class="font-caveat" style="color:#aaa;font-size:0.9rem;margin-bottom:12px;">Tap the hearts & stickers to reveal hidden notes...</p>
+
+          <!-- Lined paper background -->
+          <div style="flex:1;background:white;border-radius:8px;padding:16px;position:relative;background-image:repeating-linear-gradient(transparent,transparent 27px,#f0e8e0 27px,#f0e8e0 28px);border:1px solid #f0e0d8;">
+            <p class="font-handwriting" style="color:#B5838D;font-size:1rem;line-height:2;padding-top:4px;">Dear you,</p>
+            <p class="font-handwriting" style="color:#666;font-size:0.9rem;line-height:2;">I still remember the 2000 page pdf u wrote for me</p>
+            <p class="font-handwriting" style="color:#666;font-size:0.9rem;line-height:2;">Look around this page — I hid some little notes just for you 🌸</p>
+            
+            <!-- Secret triggers hidden around the page -->
+            <span class="secret-trigger" style="top:12px;right:12px;font-size:1.4rem;" onclick="showLoveNote(0)" title="Click me!">💕</span>
+            <span class="secret-trigger" style="bottom:60px;left:20px;font-size:1.1rem;animation-delay:0.5s;" onclick="showLoveNote(1)" title="Click me!">🌸</span>
+            <span class="secret-trigger" style="bottom:20px;right:50px;font-size:1.3rem;animation-delay:1s;" onclick="showLoveNote(2)" title="Click me!">⭐</span>
+            <span class="secret-trigger" style="top:50%;right:16px;font-size:1.2rem;animation-delay:1.5s;" onclick="showLoveNote(3)">🎀</span>
+          </div>
+          <div style="text-align:left;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 11</div>
+        </div>
+        <div class="page-back inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:12px;">Things I Love About You</h2>
+          <div style="display:flex;flex-direction:column;gap:10px;flex:1;">
+            <div class="sticky" style="transform:rotate(-1.5deg);border-radius:4px;padding:12px;">
+              <span style="font-size:1.1rem;">☀️</span> The way you hype me up when i am low.
+            </div>
+            <div class="sticky blue" style="transform:rotate(1deg);border-radius:4px;padding:12px;">
+              <span style="font-size:1.1rem;">🚀</span> Your honestly and guiding me when im wrong.
+            </div>
+            <div class="sticky pink" style="transform:rotate(-0.5deg);border-radius:4px;padding:12px;">
+              <span style="font-size:1.1rem;">🌙</span> Our random 2 AM deep talks about the universe and snacks.
+            </div>
+            <div class="sticky green" style="transform:rotate(1.5deg);border-radius:4px;padding:12px;">
+              <span style="font-size:1.1rem;">🎵</span> How you always cheer up my mood
+            </div>
+            <div class="sticky" style="transform:rotate(-1deg);border-radius:4px;padding:12px;">
+              <span style="font-size:1.1rem;">🤝</span> You being the possesive boyfrienddd
+            </div>
+          </div>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 12</div>
+        </div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 5: MEMORY MAP -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:4;" id="page-5">
+        <div class="page-front inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:4px;">Places We've Been 🗺️</h2>
+          <p class="font-caveat" style="color:#aaa;font-size:0.85rem;margin-bottom:12px;">Dont click pins - could not fix this bug sry</p>
+          
+          <div class="map-container" style="flex:1;position:relative;min-height:340px;">
+            <!-- Decorative roads -->
+            <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.25;" viewBox="0 0 460 340">
+              <path d="M 50 280 Q 150 200 230 170 Q 310 140 400 80" stroke="#a0b0a0" stroke-width="8" fill="none" stroke-dasharray="1,6"/>
+              <path d="M 80 60 Q 180 120 230 170 Q 280 220 360 300" stroke="#a0b0a0" stroke-width="8" fill="none" stroke-dasharray="1,6"/>
+            </svg>
+            
+            <!-- Illustrated map elements -->
+            <div style="position:absolute;bottom:20px;left:20px;font-size:1.5rem;opacity:0.3;">🏔️</div>
+            <div style="position:absolute;top:20px;right:30px;font-size:1.2rem;opacity:0.3;">🌊</div>
+            <div style="position:absolute;top:40%;left:10px;font-size:1rem;opacity:0.3;">🌲</div>
+            <div style="position:absolute;top:10px;left:40%;font-size:1rem;opacity:0.3;">☁️</div>
+
+            <!-- Map Pins -->
+            <div class="map-pin" style="left:22%;top:60%;" >
+              <div class="pin-dot"></div>
+              <div class="pin-label">First Date at MCD</div>
+            </div>
+            <div class="map-pin" style="left:55%;top:35%;" onclick="showPin(1)">
+              <div class="pin-dot" style="background:#a0c4a0;"></div>
+              <div class="pin-label">Almost all cafes of bandra</div>
+            </div>
+            <div class="map-pin" style="left:75%;top:65%;" onclick="showPin(2)">
+              <div class="pin-dot" style="background:#a0b4e0;"></div>
+              <div class="pin-label">Our fav - prithvi cafe</div>
+            </div>
+            <div class="map-pin" style="left:40%;top:20%;" onclick="showPin(3)">
+              <div class="pin-dot" style="background:#e0c060;"></div>
+              <div class="pin-label">First Trip - Manali</div>
+            </div>
+            <div class="map-pin" style="left:15%;top:25%;" onclick="showPin(4)">
+              <div class="pin-dot" style="background:#c8a0e0;"></div>
+              <div class="pin-label">Ur fav - ravi rice</div>
+            </div>
+          </div>
+          <div style="text-align:left;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 9</div>
+        </div>
+        <div class="page-back inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:12px;">Favourites 🌟</h2>
+          <!-- Film strip layout -->
+          <div class="photo-filmstrip" style="margin-bottom:12px;overflow-x:hidden;">
+            <div class="film-frame">
+              <img src="/fav1.jpeg" width="120" height="90" style="height: 150px;">
+              <div class="film-caption">First holii together</div>
+            </div>
+            <div class="film-frame">
+              <img src="/fav2.jpeg" width="120" height="90" style="height: 150px;">
+              <div class="film-caption">Random auto clicks</div>
+            </div>
+            <div class="film-frame">
+              <img src="/fav4.jpeg" width="120" height="90">
+              <div class="film-caption">Freshers</div>
+            </div>
+          </div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;">
+            <div class="polaroid" style="--rot:2deg;transform:rotate(2deg);">
+              <img src="/fav3.jpeg" width="200" height="150">
+              <div class="caption">Best bday ever</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="sticky pink" style="flex:1;border-radius:4px;font-size:11px;">Quiz time : our first movie together??</div>
+              <div class="sticky" style="flex:1;border-radius:4px;font-size:11px;">Quiz time 2 : My biggest fear?
+
+              </div>
+            </div>
+          </div>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 10</div>
+        </div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 4: MEMORY LANE + PHOTO COLLAGE -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:5;" id="page-4">
+        <div class="page-front inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:12px;">4 Years, 4 Chapters</h2>
+          <div style="position:relative;margin-left:8px;border-left:2px dashed #E5989B;padding-left:20px;flex:1;display:flex;flex-direction:column;gap:16px;">
+            <div style="position:relative;">
+              <div style="position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:#E5989B;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);"></div>
+              <h4 class="font-handwriting" style="color:#E5989B;font-weight:700;margin-bottom:2px;">Year 1: The Spark ✨</h4>
+              <p style="font-size:0.85rem;color:#777;line-height:1.5;">Where it all began.Late night talks, fucking board exams!</p>
+            </div>
+            <div style="position:relative;">
+              <div style="position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:#a0c4a0;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);"></div>
+              <h4 class="font-handwriting" style="color:#7a9e7a;font-weight:700;margin-bottom:2px;">Year 2: Adventures 🌍</h4>
+              <p style="font-size:0.85rem;color:#777;line-height:1.5;">From wishing to be in the same college, So many firsts.</p>
+            </div>
+            <div style="position:relative;">
+              <div style="position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:#a0b4e0;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);"></div>
+              <h4 class="font-handwriting" style="color:#7090c0;font-weight:700;margin-bottom:2px;">Year 3: Growth 🌱</h4>
+              <p style="font-size:0.85rem;color:#777;line-height:1.5;">Fights and fights but love jus got stronger</p>
+            </div>
+            <div style="position:relative;">
+              <div style="position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;background:#e0b060;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.15);"></div>
+              <h4 class="font-handwriting" style="color:#c09040;font-weight:700;margin-bottom:2px;">Year 4: Forever 💛</h4>
+              <p style="font-size:0.85rem;color:#777;line-height:1.5;">Taking our first trip to manali and wanting so much moree</p>
+            </div>
+          </div>
+          <div style="text-align:left;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 7</div>
+        </div>
+        <div class="page-back inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:12px;">Manali 2026</h2>
+          <!-- Collage layout variant -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:8px;flex:1;">
+            <div class="polaroid polaroid-anim" style="--rot:-3deg;animation-delay:0.1s;grid-column:1/2;">
+              <img src="/manali1.jpeg" width="200" height="160">
+              <div class="caption">Mountains 🏔️</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="polaroid polaroid-anim" style="--rot:2deg;animation-delay:0.3s;">
+                <img src="/manali2.jpeg" width="200" height="100">
+                <div class="caption">Smiles 😊</div>
+              </div>
+            </div>
+            <div class="polaroid polaroid-anim" style="--rot:1deg;animation-delay:0.5s;grid-column:1/3;">
+              <img src="/manali3.jpeg" width="380" height="130">
+              <div class="caption">Golden hour forever 🌅</div>
+            </div>
+          </div>
+          <!-- Secret trigger on this page too -->
+          <span class="secret-trigger" style="position:absolute;bottom:40px;right:20px;font-size:1.3rem;" onclick="showLoveNote(4)">💫</span>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 8</div>
+        </div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 3: PHOTO GRID + GRID VARIANT -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:6;" id="page-3">
+        <div class="page-front inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:12px;">Early Moments 📷</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;">
+            <div class="polaroid polaroid-anim" style="--rot:-2deg;animation-delay:0.1s;">
+              <img src="/early1.jpg" style="width:100%;height:auto;">
+              <div class="caption">MCD 1</div>
+            </div>
+            <div class="polaroid polaroid-anim" style="--rot:2.5deg;animation-delay:0.25s;">
+              <img src="/early2.jpg" width="200" height="160">
+              <div class="caption">MCD 2</div>
+            </div>
+            <div class="polaroid polaroid-anim" style="--rot:1deg;animation-delay:0.4s;">
+              <img src="early4.jpg" width="200" height="160">
+              <div class="caption">Sunset Walks 🌤</div>
+            </div>
+            <div class="polaroid polaroid-anim" style="--rot:-1.5deg;animation-delay:0.55s;">
+              <img src="/early5.jpg" width="200" height="160">
+              <div class="caption">Winter Nights 🕯️</div>
+            </div>
+          </div>
+          <!-- Washi tape strip -->
+
+          <div style="text-align:left;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 5</div>
+        </div>
+        <div class="page-back inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:12px;">A Whole Mood Board 🎨</h2>
+          <!-- Masonry-ish collage -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;flex:1;align-content:start;">
+            <div class="polaroid" style="transform:rotate(-2deg);grid-column:1/3;">
+              <img src="/mood1.jpeg" style="height: 180px;">
+              <div class="caption">U kissing me</div>
+            </div>
+            <div class="polaroid" style="transform:rotate(3deg);">
+              <img src="/image.png" width="120" style="height: 180px;">
+              <div class="caption">U smelling me</div>
+            </div>
+            <div class="polaroid" style="transform:rotate(1deg);">
+              <img src="/sleep.png" width="120" style="height: 180px;">
+              <div class="caption">U sleepy on me</div>
+            </div>
+            <div class="polaroid" style="transform:rotate(-1deg);">
+              <img src="/hug.jpeg" width="120" style="height: 180px;">
+              <div class="caption">U hugging me</div>
+            </div>
+            <div class="sticky pink" style="border-radius:4px;font-size:11px;padding:10px;display:flex;align-items:center;">Pinch me, I must be dreaming! 💭</div>
+          </div>
+          <!-- Secret doodle -->
+          <span class="secret-trigger" style="position:absolute;bottom:36px;left:16px;font-size:1.4rem;" onclick="showLoveNote(5)">🎀</span>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 6</div>
+        </div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 2: HOW IT STARTED + INTRO -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:7;" id="page-2">
+        <div class="page-front inner-page">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;">
+            <div style="font-size:2.5rem;margin-bottom:12px;">🤝</div>
+            <h2 class="font-script" style="font-size:2.5rem;color:#B5838D;margin-bottom:16px;">For You Vedu</h2>
+            <p class="font-handwriting" style="font-size:1.15rem;line-height:1.8;color:#666;max-width:300px;">
+              "For the one who made the last 4 years the happiest of my life."
+            </p>
+            <div style="width:60px;height:2px;background:#E5989B;margin:20px auto;"></div>
+            
+            <!-- Counter block -->
+            <div style="background:white;border-radius:16px;padding:16px 24px;box-shadow:0 4px 20px rgba(229,152,155,0.15);display:flex;gap:30px;">
+              <div class="counter-item">
+                <div class="counter-num" id="days-count2">1461</div>
+                <div class="counter-label">days</div>
+              </div>
+              <div class="counter-item">
+                <div class="counter-num" id="hours-count2">35064</div>
+                <div class="counter-label">hours</div>
+              </div>
+              <div class="counter-item">
+                <div class="counter-num" style="font-size:2.5rem;">∞</div>
+                <div class="counter-label">laughs</div>
+              </div>
+            </div>
+          </div>
+          <!-- Floating doodles -->
+          <div class="doodle bob" style="top:16px;left:16px;font-size:1.2rem;--rot:-10deg;">🌸</div>
+          <div class="doodle bob" style="top:16px;right:16px;font-size:1.2rem;--rot:8deg;animation-delay:0.7s;">💫</div>
+          <div style="text-align:left;font-family:monospace;font-size:10px;color:#ccc;">Page 1</div>
+        </div>
+        <div class="page-back inner-page">
+          <h2 class="font-script" style="font-size:2rem;color:#B5838D;margin-bottom:16px;">How it Started 🌱</h2>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative;">
+            <div class="polaroid" style="transform:rotate(2.5deg);margin-bottom:12px;position:relative;">
+              <!-- Tape strip -->
+              <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:50px;height:14px;background:rgba(255,255,180,0.7);border:1px solid rgba(0,0,0,0.06);transform:translateX(-50%) rotate(-8deg);"></div>
+              <img src="/start.jpg" style="height: 350px;">
+              <div class="caption">The very beginning 🌟</div>
+            </div>
+            <p class="font-handwriting" style="font-size:0.95rem;color:#666;text-align:center;line-height:1.7;padding:0 8px;">
+              "Our very first photo together. I remember being so nervous but so happy. Look how far we've come!"
+            </p>
+            <span class="secret-trigger" style="position:absolute;bottom:0;right:10px;font-size:1.3rem;" onclick="showLoveNote(6)">💌</span>
+          </div>
+          <div style="text-align:right;font-family:monospace;font-size:10px;color:#ccc;margin-top:8px;">Page 2</div>
+        </div>
+      </div>
+
+      <!-- ======================================= -->
+      <!-- PAGE 1 / COVER -->
+      <!-- ======================================= -->
+      <div class="page" style="z-index:8;" id="cover-page" onclick="toggleOpen()">
+        <div class="page-front cover-outer">
+          <!-- Background pattern doodles -->
+          <div style="position:absolute;inset:0;overflow:hidden;opacity:0.15;pointer-events:none;">
+            <div style="position:absolute;top:20px;left:20px;font-size:2rem;transform:rotate(-15deg);">♡</div>
+            <div style="position:absolute;top:60px;right:30px;font-size:1.5rem;transform:rotate(10deg);">★</div>
+            <div style="position:absolute;bottom:80px;left:30px;font-size:1.8rem;transform:rotate(-5deg);">✿</div>
+            <div style="position:absolute;bottom:40px;right:20px;font-size:2rem;transform:rotate(20deg);">♡</div>
+            <div style="position:absolute;top:45%;left:10px;font-size:1.2rem;">⋆</div>
+          </div>
+          
+          <div style="position:relative;margin-bottom:16px;">
+            <div style="font-size:5rem;opacity:0.3;line-height:1;">♡</div>
+            <!-- <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+              <span class="font-script" style="font-size:2.8rem;color:white; margin-top: 20px;">Us</span>
+            </div> -->
+          </div>
+
+          <h1 class="font-script" style="font-size:4rem;color:white;margin-bottom:6px;text-shadow:0 2px 20px rgba(0,0,0,0.15);">Our Story</h1>
+          <p class="font-handwriting" style="font-size:1.4rem;color:rgba(255,255,255,0.9);margin-bottom:28px;">4 Beautiful Years</p>
+          
+          <button style="padding:14px 32px;background:white;color:#E5989B;border:none;border-radius:30px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.15);display:flex;align-items:center;gap:8px;font-size:0.95rem;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+            Open the Book <span>→</span>
+          </button>
+
+          <div style="margin-top:24px;display:flex;gap:12px;font-size:1.2rem;">
+            <span style="color:white;animation:floatBob 2s infinite;">😘</span>
+            <span style="color:white;animation:heartbeat 1.5s infinite;">😍</span>
+            <span style="color:white;animation:floatBob 2.5s infinite;">🥰</span>
+          </div>
+        </div>
+        <div class="page-back inner-page" style="display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;opacity:0.4;">
+            <div style="font-size:3rem;margin-bottom:8px;">📖</div>
+            <p class="font-handwriting" style="color:#B5838D;font-size:1.1rem;">Turning the first page...</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /book -->
+  </div>
+</div>
+
+<!-- ===== NAV ===== -->
+<div id="nav-controls">
+  <button class="nav-btn" onclick="prevPage()">←</button>
+  <button class="nav-btn" onclick="nextPage()">→</button>
+</div>
+<div id="page-indicator">Spread <span id="current-spread">1</span> of 8</div>
+
+<script>
+// ==========================================
+// DATA
+// ==========================================
+const loveNotes = [
+  "You make even the most ordinary days feel like a fairytale. ✨",
+  "I still remember the first time you made me laugh. I knew right then. 💕",
+  "Thank you for choosing me every single day. That's the greatest gift. 🌸",
+  "The way your eyes light up when you talk about the things you love... I fall for you every single time. 🌟",
+  "You are my favorite notification, my favorite distraction, my favorite everything. 💌",
+  "I never knew a person could feel like home — then I met you. 🏡",
+  "I saved the best note for last: I love you more today than yesterday. And tomorrow? Even more. ♾️"
+];
+
+const mapPins = [
+  { title: "Our First Date ☕", desc: "The coffee shop where everything started. You were nervous. So was I.", img: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&q=80&w=300&h=150" },
+  { title: "Our Spot 🌿", desc: "The little park where we used to escape the world together.", img: "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&q=80&w=300&h=150" },
+  { title: "Beach Trip 🌊", desc: "That summer getaway. Salt, sun, and you.", img: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&q=80&w=300&h=150" },
+  { title: "First Trip Together ✈️", desc: "I was so excited and so terrified at the same time. Best trip ever.", img: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&q=80&w=300&h=150" },
+  { title: "Our Favourite Café 🍰", desc: "Every weekend ritual. Same table. Same order. Perfectly us.", img: "https://images.unsplash.com/photo-1516589174184-c685266d7bd4?auto=format&fit=crop&q=80&w=300&h=150" }
+];
+
+const loveReasons = [
+  "Because you make every ordinary moment feel magical. ✨",
+  "Because you always know when to give me space and when to hold me close. 🤗",
+  "Because you believe in me even when I don't believe in myself. 💪",
+  "Because your laugh is my favorite sound in the whole world. 😂",
+  "Because you make home feel like the best place on earth. 🏠",
+  "Because you show up, every single time. That's everything. 💯",
+  "Because life with you is just... better. Simply better. 💛",
+  "Because you remember the little things that matter most. 🌸",
+  "Because you're my person — in every version of every world. 🌍"
+];
+
+// ==========================================
+// BOOK STATE
+// ==========================================
+const book = document.getElementById('scrapbook');
+const navControls = document.getElementById('nav-controls');
+const indicator = document.getElementById('page-indicator');
+const currentSpreadEl = document.getElementById('current-spread');
+
+const pages = [
+  document.getElementById('cover-page'),
+  document.getElementById('page-2'),
+  document.getElementById('page-3'),
+  document.getElementById('page-4'),
+  document.getElementById('page-5'),
+  document.getElementById('page-6'),
+  document.getElementById('page-7'),
+  document.getElementById('page-8')
+];
+
+let currentPageIndex = -1;
+let isOpen = false;
+
+function toggleOpen() {
+  if (!isOpen) {
+    isOpen = true;
+    book.classList.add('is-open');
+    flipPage(0);
+    currentPageIndex = 0;
+    setTimeout(() => {
+      navControls.classList.add('visible');
+      indicator.classList.add('visible');
+    }, 900);
+  }
+}
+
+function flipPage(index) {
+  if (index >= 0 && index < pages.length) {
+    pages[index].classList.add('flipped');
+    setTimeout(() => { pages[index].style.zIndex = index + 1; }, 450);
+    if (index === pages.length - 1) triggerFinalPage();
+  }
+}
+
+function unflipPage(index) {
+  if (index >= 0 && index < pages.length) {
+    pages[index].classList.remove('flipped');
+    pages[index].style.zIndex = pages.length - index + 5;
+  }
+}
+
+function nextPage() {
+  if (currentPageIndex < pages.length - 1) {
+    currentPageIndex++;
+    flipPage(currentPageIndex);
+    updateIndicator();
+  }
+}
+
+function prevPage() {
+  if (currentPageIndex > 0) {
+    unflipPage(currentPageIndex);
+    currentPageIndex--;
+    updateIndicator();
+  } else if (currentPageIndex === 0) {
+    unflipPage(0);
+    currentPageIndex = -1;
+    isOpen = false;
+    book.classList.remove('is-open');
+    navControls.classList.remove('visible');
+    indicator.classList.remove('visible');
+  }
+}
+
+function updateIndicator() {
+  currentSpreadEl.innerText = currentPageIndex + 1;
+}
+
+function resetBook() {
+  const seq = Array.from({length: pages.length}, (_, i) => i).reverse();
+  seq.forEach((idx, i) => setTimeout(() => unflipPage(idx), i * 130));
+  setTimeout(() => {
+    book.classList.remove('is-open');
+    isOpen = false;
+    currentPageIndex = -1;
+    navControls.classList.remove('visible');
+    indicator.classList.remove('visible');
+    document.getElementById('final-message').classList.remove('reveal');
+  }, seq.length * 130 + 500);
+}
+
+// ==========================================
+// LOVE NOTES
+// ==========================================
+function showLoveNote(index) {
+  document.getElementById('love-note-text').textContent = loveNotes[index];
+  document.getElementById('love-modal').classList.add('show');
+}
+function closeLoveModal() {
+  document.getElementById('love-modal').classList.remove('show');
+}
+
+// ==========================================
+// MAP PINS
+// ==========================================
+function showPin(index) {
+  const pin = mapPins[index];
+  const popup = document.getElementById('pin-popup');
+  document.getElementById('pin-img').src = pin.img;
+  document.getElementById('pin-title').textContent = pin.title;
+  document.getElementById('pin-desc').textContent = pin.desc;
+  popup.style.display = 'block';
+  popup.style.top = (window.innerHeight / 2 - 120) + 'px';
+  popup.style.left = (window.innerWidth / 2 - 110) + 'px';
+}
+function closePinPopup() {
+  document.getElementById('pin-popup').style.display = 'none';
+}
+document.addEventListener('click', (e) => {
+  const popup = document.getElementById('pin-popup');
+  if (popup.style.display === 'block' && !popup.contains(e.target) && !e.target.closest('.map-pin')) {
+    popup.style.display = 'none';
+  }
+});
+
+// ==========================================
+// WHY I LOVE YOU
+// ==========================================
+let lastReason = 0;
+function showLoveReason() {
+  const el = document.getElementById('love-reason-display');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    let idx;
+    do { idx = Math.floor(Math.random() * loveReasons.length); } while (idx === lastReason);
+    lastReason = idx;
+    el.textContent = loveReasons[idx];
+    el.style.opacity = '1';
+  }, 300);
+}
+
+// ==========================================
+// MUSIC
+// ==========================================
+let musicPlaying = false;
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let musicNodes = [];
+
+function createMusicLoop() {
+  const notes = [261.63, 329.63, 392, 440, 523.25, 392, 329.63, 261.63];
+  let time = audioCtx.currentTime;
+  notes.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, time + i * 0.4);
+    gain.gain.setValueAtTime(0, time + i * 0.4);
+    gain.gain.linearRampToValueAtTime(0.06, time + i * 0.4 + 0.05);
+    gain.gain.linearRampToValueAtTime(0, time + i * 0.4 + 0.35);
+    osc.start(time + i * 0.4);
+    osc.stop(time + i * 0.4 + 0.4);
+    musicNodes.push(osc);
+  });
+}
+
+function toggleMusic() {
+  musicPlaying = !musicPlaying;
+  const btn = document.getElementById('music-btn');
+  const reel = document.getElementById('cassette-reel');
+  const label = document.getElementById('music-label');
+  if (musicPlaying) {
+    btn.textContent = '⏸';
+    reel.classList.add('spinning');
+    label.textContent = '♪ Playing...';
+    createMusicLoop();
+    window._musicInterval = setInterval(createMusicLoop, notes ? notes.length * 400 : 3200, 0);
+    window._musicInterval = setInterval(() => createMusicLoop(), 3200);
+  } else {
+    btn.textContent = '▶';
+    reel.classList.remove('spinning');
+    label.textContent = '♪ Tap to play';
+    clearInterval(window._musicInterval);
+  }
+}
+
+// ==========================================
+// COUNTER
+// ==========================================
+function updateCounter() {
+  const start = new Date('2021-03-11');
+  const now = new Date();
+  const diff = Math.floor((now - start) / 1000 / 60 / 60);
+  const days = Math.floor(diff / 24);
+  const hours = diff;
+  ['days-count', 'days-count2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = days.toLocaleString();
+  });
+  ['hours-count', 'hours-count2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = hours.toLocaleString();
+  });
+}
+updateCounter();
+
+// ==========================================
+// CONFETTI + FINAL PAGE
+// ==========================================
+function triggerConfetti() {
+  const colors = ['#E5989B','#F5D5D0','#FFD700','#B5838D','#FFB6C1','#FFF0F5'];
+  const symbols = ['♥','✿','⭐','✦','♡'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.fontSize = (Math.random() * 16 + 10) + 'px';
+      el.style.color = colors[Math.floor(Math.random() * colors.length)];
+      el.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      el.style.animationDelay = (Math.random() * 2) + 's';
+      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 6000);
+    }, i * 60);
+  }
+}
+
+function triggerFinalPage() {
+  setTimeout(() => {
+    document.getElementById('final-message').classList.add('reveal');
+    triggerConfetti();
+  }, 800);
+}
+
+// ==========================================
+// FLOATING HEARTS BACKGROUND
+// ==========================================
+const particlesContainer = document.getElementById('particles-container');
+function createHeart() {
+  const heart = document.createElement('div');
+  heart.className = 'floating-heart';
+  heart.style.left = Math.random() * 100 + 'vw';
+  heart.style.animationDelay = (Math.random() * 4) + 's';
+  heart.style.animationDuration = (Math.random() * 4 + 5) + 's';
+  const size = Math.random() * 16 + 8;
+  const emojis = ['♡','♥','✿','⭐','✦'];
+  heart.style.fontSize = size + 'px';
+  heart.style.color = ['#F5D5D0','#E5989B','#FFB6C1','#FFDDE1'][Math.floor(Math.random()*4)];
+  heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  particlesContainer.appendChild(heart);
+  setTimeout(() => heart.remove(), 9000);
+}
+setInterval(createHeart, 1000);
+
+// ==========================================
+// LOADING SCREEN
+// ==========================================
+const loadingHearts = document.getElementById('loading-hearts-container');
+function createLoadingHeart() {
+  const h = document.createElement('div');
+  h.style.cssText = `position:absolute;font-size:${Math.random()*20+10}px;left:${Math.random()*100}%;animation:floatUp ${Math.random()*3+4}s linear forwards;opacity:0;color:#F5D5D0;`;
+  h.textContent = '♥';
+  loadingHearts.appendChild(h);
+  setTimeout(() => h.remove(), 7000);
+}
+const loadingHeartsInterval = setInterval(createLoadingHeart, 400);
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    clearInterval(loadingHeartsInterval);
+    document.getElementById('loading-screen').classList.add('hidden');
+    setTimeout(() => {
+      document.getElementById('loading-screen').style.display = 'none';
+    }, 900);
+  }, 2500);
+});
+</script>
+</body>
+</html>
